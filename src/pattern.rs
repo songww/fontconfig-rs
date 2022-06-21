@@ -496,6 +496,31 @@ impl Pattern {
     {
         property.value_for(self, value)
     }
+
+    /// Add family name to this pattern.
+    pub fn add_family(&mut self, family: String) -> bool {
+        self.add(&properties::FC_FAMILY, family)
+    }
+
+    /// Add font size to this pattern.
+    pub fn add_size(&mut self, size: f64) -> bool {
+        self.add(&properties::FC_SIZE, size)
+    }
+
+    /// Add pixel size to this pattern.
+    pub fn add_pixelsize(&mut self, pixelsize: f64) -> bool {
+        self.add(&properties::FC_PIXEL_SIZE, pixelsize)
+    }
+
+    /// Add slant to this pattern.
+    pub fn add_slant(&mut self, slant: properties::Slant) -> bool {
+        self.add(&properties::FC_SLANT, slant.as_i32())
+    }
+
+    /// Add weight to this pattern.
+    pub fn add_weight(&mut self, weight: properties::Weight) -> bool {
+        self.add(&properties::FC_WEIGHT, weight.as_i32())
+    }
 }
 
 impl Default for OwnedPattern {
@@ -1109,6 +1134,119 @@ pub mod properties {
         "Whether font has hinting"
     );
     property_decl!(b"order\0", FC_ORDER, i32, "Order number of the font");
+
+    /// Slant
+    #[derive(Clone, Debug, PartialEq, Eq)]
+    #[repr(i32)]
+    pub enum Slant {
+        ///
+        #[doc(alias = "FC_SLANT_ROMAN")]
+        Roman = 0,
+        ///
+        #[doc(alias = "FC_SLANT_ITALIC")]
+        Italic = 100,
+        ///
+        #[doc(alias = "FC_SLANT_OBLIQUE")]
+        Oblique = 110,
+    }
+
+    impl Slant {
+        pub(super) fn as_i32(&self) -> i32 {
+            match self {
+                Slant::Roman => 0,
+                Slant::Italic => 100,
+                Slant::Oblique => 110,
+            }
+        }
+    }
+
+    /// Font Weight
+    #[derive(Clone, Debug, PartialEq, Eq)]
+    pub enum Weight {
+        ///
+        #[doc(alias = "FC_WEIGHT_THIN")]
+        Thin,
+        ///
+        #[doc(alias = "FC_WEIGHT_EXTRALIGHT")]
+        ExtraLight,
+        ///
+        #[doc(alias = "FC_WEIGHT_ULTRALIGHT")]
+        UltraLight,
+        /// Light
+        #[doc(alias = "FC_WEIGHT_LIGHT")]
+        Light,
+        /// DemiLight
+        #[doc(alias = "FC_WEIGHT_DEMILIGHT")]
+        DemiLight,
+        /// SemiLight
+        #[doc(alias = "FC_WEIGHT_SEMILIGHT")]
+        SemiLight,
+        /// Book
+        #[doc(alias = "FC_WEIGHT_BOOK")]
+        Book,
+        /// Regular
+        #[doc(alias = "FC_WEIGHT_REGULAR")]
+        Regular,
+        /// Normal,
+        #[doc(alias = "FC_WEIGHT_NORMAL")]
+        Normal,
+        /// Medium
+        #[doc(alias = "FC_WEIGHT_MEDIUM")]
+        Medium,
+        /// DemiBold
+        #[doc(alias = "FC_WEIGHT_DEMIBOLD")]
+        DemiBold,
+        /// SemiBold
+        #[doc(alias = "FC_WEIGHT_SEMIBOLD")]
+        SemiBold,
+        /// Bold
+        #[doc(alias = "FC_WEIGHT_BOLD")]
+        Bold,
+        /// ExtraBold
+        #[doc(alias = "FC_WEIGHT_EXTRABOLD")]
+        ExtraBold,
+        /// UltraBold
+        #[doc(alias = "FC_WEIGHT_ULTRABOLD")]
+        UltraBold,
+        /// Black
+        #[doc(alias = "FC_WEIGHT_BLACK")]
+        Black,
+        /// Heavy
+        #[doc(alias = "FC_WEIGHT_HEAVY")]
+        Heavy,
+        /// ExtraBlack
+        #[doc(alias = "FC_WEIGHT_EXTRABLACK")]
+        ExtraBlack,
+        /// UltraBlack
+        #[doc(alias = "FC_WEIGHT_ULTRABLACK")]
+        UltraBlack,
+    }
+
+    impl Weight {
+        pub(super) fn as_i32(&self) -> i32 {
+            match self {
+                Weight::Thin => 0,
+                Weight::ExtraLight => 40,
+                Weight::UltraLight => 40,
+                Weight::Light => 50,
+                Weight::DemiLight => 55,
+                Weight::SemiLight => 55,
+                Weight::Book => 75,
+                Weight::Regular => 80,
+                Weight::Normal => 80,
+                Weight::Medium => 100,
+                Weight::DemiBold => 180,
+                Weight::SemiBold => 180,
+                Weight::Bold => 200,
+                Weight::ExtraBold => 205,
+                Weight::UltraBold => 205,
+                Weight::Black => 210,
+                Weight::Heavy => 210,
+                Weight::ExtraBlack => 215,
+                Weight::UltraBlack => 215,
+            }
+        }
+    }
 }
 
 #[cfg(test)]
