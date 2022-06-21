@@ -60,8 +60,14 @@ impl OwnedPattern {
 
 impl Pattern {
     /// Delete a property from a pattern
-    pub fn del(&mut self, name: &CStr) -> bool {
-        FcTrue == unsafe { ffi_dispatch!(LIB, FcPatternDel, self.as_mut_ptr(), name.as_ptr()) }
+    pub fn del<'pat, T>(&'pat mut self, property: &properties::Property<'pat, T>) -> bool
+    where
+        T: properties::PropertyType<'pat>,
+    {
+        FcTrue
+            == unsafe {
+                ffi_dispatch!(LIB, FcPatternDel, self.as_mut_ptr(), property.name.as_ptr())
+            }
     }
 
     /// Print this pattern to stdout with all its values.
@@ -470,25 +476,25 @@ impl Pattern {
     ///
     pub fn get<'a, 'pat, V>(
         &'pat self,
-        name: &'a properties::Property<'pat, V>,
+        property: &'a properties::Property<'pat, V>,
         index: usize,
     ) -> Option<V::Returns>
     where
         V: properties::PropertyType<'pat>,
     {
-        name.value_of(self, index)
+        property.value_of(self, index)
     }
 
     ///
     pub fn add<'a, 'pat, V>(
         &'pat mut self,
-        name: &'a properties::Property<'pat, V>,
+        property: &'a properties::Property<'pat, V>,
         value: V,
     ) -> bool
     where
         V: properties::PropertyType<'pat>,
     {
-        name.value_for(self, value)
+        property.value_for(self, value)
     }
 }
 
@@ -521,7 +527,7 @@ pub mod properties {
 
     ///
     pub struct Property<'pat, V: PropertyType<'pat>> {
-        name: &'static CStr,
+        pub(super) name: &'static CStr,
         val: PhantomData<&'pat V>,
     }
 
@@ -577,7 +583,7 @@ pub mod properties {
     impl<'pat> private::Sealed<'pat> for String {
         fn value<'a>(
             pat: &'pat Pattern,
-            name: &'a Property<'pat, Self>,
+            property: &'a Property<'pat, Self>,
             index: usize,
         ) -> Option<Self::Returns> {
             let c_str = unsafe {
@@ -586,7 +592,7 @@ pub mod properties {
                     LIB,
                     FcPatternGetString,
                     pat.as_ptr() as *mut _,
-                    name.name.as_ptr(),
+                    property.name.as_ptr(),
                     index as i32,
                     &mut ret
                 )
@@ -599,7 +605,11 @@ pub mod properties {
             c_str.to_str().ok()
         }
 
-        fn set_to<'a>(mut self, pat: &'pat mut Pattern, name: &'a Property<'pat, Self>) -> bool {
+        fn set_to<'a>(
+            mut self,
+            pat: &'pat mut Pattern,
+            property: &'a Property<'pat, Self>,
+        ) -> bool {
             self.push('\0');
             let c_str = CStr::from_bytes_with_nul(self.as_bytes()).unwrap();
             FcTrue
@@ -608,7 +618,7 @@ pub mod properties {
                         LIB,
                         FcPatternAddString,
                         pat.as_mut_ptr(),
-                        name.name.as_ptr(),
+                        property.name.as_ptr(),
                         c_str.as_ptr() as *mut _
                     )
                 }
@@ -620,14 +630,14 @@ pub mod properties {
     }
 
     impl<'a> private::Sealed<'a> for i32 {
-        fn value(pat: &Pattern, name: &Property<Self>, index: usize) -> Option<Self::Returns> {
+        fn value(pat: &Pattern, property: &Property<Self>, index: usize) -> Option<Self::Returns> {
             let mut val: i32 = 0;
             unsafe {
                 ffi_dispatch!(
                     LIB,
                     FcPatternGetInteger,
                     pat.as_ptr() as *mut _,
-                    name.name.as_ptr(),
+                    property.name.as_ptr(),
                     index as i32,
                     &mut val
                 )
@@ -655,14 +665,14 @@ pub mod properties {
     }
 
     impl<'a> private::Sealed<'a> for bool {
-        fn value(pat: &Pattern, name: &Property<Self>, index: usize) -> Option<Self::Returns> {
+        fn value(pat: &Pattern, property: &Property<Self>, index: usize) -> Option<Self::Returns> {
             let mut val: i32 = 0;
             unsafe {
                 ffi_dispatch!(
                     LIB,
                     FcPatternGetBool,
                     pat.as_ptr() as *mut _,
-                    name.name.as_ptr(),
+                    property.name.as_ptr(),
                     index as i32,
                     &mut val
                 )
@@ -690,14 +700,14 @@ pub mod properties {
     }
 
     impl<'a> private::Sealed<'a> for f64 {
-        fn value(pat: &Pattern, name: &Property<Self>, index: usize) -> Option<Self::Returns> {
+        fn value(pat: &Pattern, property: &Property<Self>, index: usize) -> Option<Self::Returns> {
             let mut val: f64 = 0.;
             unsafe {
                 ffi_dispatch!(
                     LIB,
                     FcPatternGetDouble,
                     pat.as_ptr() as *mut _,
-                    name.name.as_ptr(),
+                    property.name.as_ptr(),
                     index as i32,
                     &mut val
                 )
@@ -725,14 +735,18 @@ pub mod properties {
     }
 
     impl<'pat> private::Sealed<'pat> for crate::Matrix {
-        fn value(pat: &'pat Pattern, name: &Property<Self>, index: usize) -> Option<Self::Returns> {
+        fn value(
+            pat: &'pat Pattern,
+            property: &Property<Self>,
+            index: usize,
+        ) -> Option<Self::Returns> {
             let val = unsafe {
                 let mut val = std::ptr::null_mut();
                 ffi_dispatch!(
                     LIB,
                     FcPatternGetMatrix,
                     pat.as_ptr() as *mut _,
-                    name.name.as_ptr(),
+                    property.name.as_ptr(),
                     index as i32,
                     &mut val
                 )
@@ -765,14 +779,14 @@ pub mod properties {
     }
 
     impl<'a> private::Sealed<'a> for crate::OwnedCharSet {
-        fn value(pat: &Pattern, name: &Property<Self>, index: usize) -> Option<Self::Returns> {
+        fn value(pat: &Pattern, property: &Property<Self>, index: usize) -> Option<Self::Returns> {
             unsafe {
                 let mut val = std::ptr::null_mut();
                 ffi_dispatch!(
                     LIB,
                     FcPatternGetCharSet,
                     pat.as_ptr() as *mut _,
-                    name.name.as_ptr(),
+                    property.name.as_ptr(),
                     index as i32,
                     &mut val
                 )
@@ -804,14 +818,14 @@ pub mod properties {
     }
 
     impl<'a> private::Sealed<'a> for crate::LangSet {
-        fn value(pat: &Pattern, name: &Property<Self>, index: usize) -> Option<Self::Returns> {
+        fn value(pat: &Pattern, property: &Property<Self>, index: usize) -> Option<Self::Returns> {
             let val = unsafe {
                 let mut val = std::ptr::null_mut();
                 ffi_dispatch!(
                     LIB,
                     FcPatternGetLangSet,
                     pat.as_ptr() as *mut _,
-                    name.name.as_ptr(),
+                    property.name.as_ptr(),
                     index as i32,
                     &mut val
                 )

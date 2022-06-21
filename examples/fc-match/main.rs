@@ -99,8 +99,8 @@ fn main() {
         let mut font = pattern.filter(os.as_mut()).unwrap();
         if opts.verbose || opts.brief {
             if opts.brief {
-                font.del(fontconfig::FC_CHARSET.as_cstr());
-                font.del(fontconfig::FC_LANG.as_cstr());
+                font.del(&fontconfig::properties::FC_CHARSET);
+                font.del(&fontconfig::properties::FC_LANG);
             }
             pattern.print();
         } else {
