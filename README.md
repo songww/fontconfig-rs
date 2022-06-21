@@ -2,16 +2,16 @@ fontconfig
 ==========
 
 <div align="center">
-  <a href="https://travis-ci.com/songww/fontconfig-rs">
-    <img src="https://travis-ci.com/songww/fontconfig-rs.svg?branch=master" alt="Build Status"></a>
+  <a href="https://github.com/songww/fontconfig-rs/actions/workflows/testing.yml">
+    <img src="https://github.com/songww/fontconfig-rs/actions/workflows/testing.yml/badge.svg" alt="Build Status"></a>
   <a href="https://docs.rs/fontconfig-rs">
-    <img src="https://docs.rs/fontconfig/badge.svg" alt="Documentation">
+    <img src="https://img.shields.io/docsrs/fontconfig-rs" alt="Documentation">
   </a>
   <a href="https://crates.io/crates/fontconfig-rs">
-    <img src="https://img.shields.io/crates/v/fontconfig.svg" alt="Version">
+    <img src="https://img.shields.io/crates/v/fontconfig-rs" alt="Version">
   </a>
   <a href="https://github.com/songww/fontconfig-rs/blob/master/LICENSE">
-    <img src="https://img.shields.io/crates/l/fontconfig.svg" alt="License">
+    <img src="https://img.shields.io/crates/l/fontconfig-rs" alt="License">
   </a>
 </div>
 
