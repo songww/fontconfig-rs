@@ -55,12 +55,12 @@ fn main() {
 
     let mut config = fontconfig::FontConfig::default();
 
-    if opts.default {
-        pat.default_substitute();
-    }
-
     if opts.config {
         config.substitute(&mut pat, fontconfig::MatchKind::Pattern);
+    }
+
+    if opts.default {
+        pat.default_substitute();
     }
 
     if os.is_some() {
