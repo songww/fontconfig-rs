@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-18.04, ubuntu-latest]
-        toolchain: [1.56.1, stable, nightly]
+        toolchain: [1.59, stable, nightly]
 
     runs-on: ${{ matrix.os }}
 
@@ -41,7 +41,6 @@ jobs:
       name: Run tests
       with:
         command: test
-        args: --tests
 
     - name: Run ldd-grep
       if: ${{ matrix.toolchain }} == "stable"
@@ -51,7 +50,7 @@ jobs:
       name: Run tests with dlopen
       with:
         command: test
-        args: --tests --features dlopen
+        args: --features dlopen
 
     - name: Run ldd-grep with dlopen
       if: ${{ matrix.toolchain }} == "stable"
@@ -63,7 +62,6 @@ jobs:
         RUST_FONTCONFIG_DLOPEN: on
       with:
         command: test
-        args: --tests
 
     - name: Run ldd-grep with dlopen from env
       env:

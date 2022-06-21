@@ -521,7 +521,7 @@ pub mod properties {
 
     ///
     pub struct Property<'pat, V: PropertyType<'pat>> {
-        name: const_cstr::ConstCStr,
+        name: &'static CStr,
         val: PhantomData<&'pat V>,
     }
 
@@ -839,7 +839,7 @@ pub mod properties {
         ($bytes:literal, $name:ident, $vtype:ty, $comment:literal) => {
             /// $comment
             pub const $name: Property<$vtype> = Property {
-                name: ::fontconfig_sys::constants::$name,
+                name: unsafe { CStr::from_bytes_with_nul_unchecked($bytes) },
                 val: PhantomData,
             };
         };
