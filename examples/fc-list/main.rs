@@ -83,8 +83,8 @@ fn main() {
         for font in fs.iter_mut() {
             if opts.verbose || opts.brief {
                 if opts.brief {
-                    font.del(fontconfig::FC_CHARSET.as_cstr());
-                    font.del(fontconfig::FC_LANG.as_cstr());
+                    font.del(&fontconfig::properties::FC_CHARSET);
+                    font.del(&fontconfig::properties::FC_LANG);
                 }
                 font.print();
             } else if let Some(fmt) = font.format(&format) {
